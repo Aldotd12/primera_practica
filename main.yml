@@ -1,0 +1,38 @@
+# Pipeline con solo dos etapas simplificadas
+stages:
+  - build_test
+  - deploy_monitor
+
+# --- Etapa 1: Construcción y Pruebas ---
+build_test_job:
+  stage: build_test
+  image: python:3.9  # O la imagen necesaria para construir y probar
+  script:
+    - echo "Iniciando la construcción y pruebas del proyecto..."
+    # Simula la construcción y el empaquetado
+    - echo "Construyendo la aplicación..."
+    # Simula la instalación de dependencias y la ejecución de pruebas
+    - pip install -r requirements.txt
+    - echo "Ejecutando pruebas unitarias y de integración..."
+    - python -m unittest discover tests/
+    - echo "✅ Construcción y pruebas completadas."
+
+# --- Etapa 2: Despliegue y Monitoreo ---
+deploy_monitor_job:
+  stage: deploy_monitor
+  image: alpine/k8s  # O la imagen necesaria para el despliegue
+  script:
+    - echo "Desplegando automáticamente en producción..."
+    - kubectl apply -f kubernetes/deployment.yaml
+    - echo "✅ Despliegue completado."
+    # Simula el monitoreo para verificar el estado
+    - echo "Verificando que la aplicación esté en línea..."
+    - status_code=$(curl -s -o /dev/null -w "%{http_code}" https://www.retailsoft.com)
+    - |
+      if [ "$status_code" -eq 200 ]; then
+        echo "✔️ El sitio está activo y funcionando."
+      else
+        echo "❌ Error en el despliegue. El sitio no responde."
+        exit 1
+      fi
+  when: on_success  # Solo se ejecuta si la etapa anterior fue exitosa
